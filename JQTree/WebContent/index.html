@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<link href="css/jqtree.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/tree.jquery.js"></script>
+<script type="text/javascript" src="js/jqtree.js"></script>
+<script type="text/javascript" src="js/json.js"></script>
+
+</head>
+<body>
+<div class="tree"></div>
+<script type="text/javascript">
+createNodes(a);
+function createNodes(domainDetailServers, nodes, serviceName, liList) {
+	$.each(domainDetailServers, function(i, csv) {
+		var node = {};
+		if ("CREATE_NODES" == serviceName) {
+			node.label = csv.name;
+			node.uniqueValue = "dd_csvs_"+i;
+			node.id = "dd_csvs_"+i;
+			csv.uID = "dd_csvs_"+i;
+			node.status=csv.status;
+			node.ipAddress=csv.ipAddress;
+			node.port=csv.port;
+			node.protocol=csv.protocol;
+			node.enDisableChecked = csv.enDisableChecked;
+			node.children = [];
+		} else if ("ENABLE_DISABLE" == serviceName) {
+			if (jQuery.inArray(csv.uID, liList) !== -1) {
+				csv.enDisableChecked = true;
+			}
+		}
+		if(csv.lBVServers)
+			{
+		$.each(csv.lBVServers,function(ii, lbv){
+			var lBVServers = {};
+			if ("CREATE_NODES" == serviceName) {
+				lBVServers.label=lbv.name;
+				lBVServers.uniqueValue = "csvs_lbv_"+i+"_"+ii;
+				lbv.id = "csvs_lbv_"+i+"_"+ii;
+				lbv.uID = "csvs_lbv_"+i+"_"+ii;
+				lBVServers.ipAddress=lbv.ipAddress;
+				lBVServers.port=lbv.port;
+				lBVServers.protocol = lbv.protocol; 
+				lBVServers.status = lbv.status;
+				lBVServers.enDisableChecked = lbv.enDisableChecked;
+				lBVServers.children = [];
+			} else if ("ENABLE_DISABLE" == serviceName) {
+				if (jQuery.inArray(lbv.uID, liList) !== -1) {
+					lbv.enDisableChecked = true;
+				}
+			}
+			$.each(lbv.serviceGroups,function(iii,ser){
+				var serviceGroups={};
+				if ("CREATE_NODES" == serviceName) {
+					serviceGroups.label=ser.name;
+					serviceGroups.uniqueValue = "lbvs_sg_"+i+"_"+ii+"_"+iii;
+					serviceGroups.id = "lbvs_sg_"+i+"_"+ii+"_"+iii;
+					ser.uID = "lbvs_sg_"+i+"_"+ii+"_"+iii;
+					serviceGroups.ipAddress=ser.ipAddress;
+					serviceGroups.port=ser.port;
+					serviceGroups.protocol = ser.protocol; 
+					serviceGroups.status = ser.status;
+					serviceGroups.enDisableChecked = ser.enDisableChecked;
+					serviceGroups.children=[];
+				} else if ("ENABLE_DISABLE" == serviceName) {
+					if (jQuery.inArray(ser.uID, liList) !== -1) {
+						ser.enDisableChecked = true;
+					}
+				}
+				$.each(ser.servers,function(iiii,serv) {
+					var servers={};
+					if ("CREATE_NODES" == serviceName) {
+						servers.label = '';/*(serv.name == undefined ? '' : serv.name);*/
+						servers.uniqueValue = "sg_srv_"+i+"_"+ii+"_"+iii+"_"+iiii;
+						servers.id = "sg_srv_"+i+"_"+ii+"_"+iii+"_"+iiii;
+						serv.uID = "sg_srv_"+i+"_"+ii+"_"+iii+"_"+iiii;
+						servers.ipAddress=serv.ipAddress;
+						servers.port=serv.port;
+						servers.protocol = serv.protocol;
+          				servers.children =[];
+						servers.status = serv.status;
+						servers.enDisableChecked = serv.enDisableChecked;
+						serviceGroups.children.push(servers);
+					} else if ("ENABLE_DISABLE" == serviceName) {
+						if (jQuery.inArray(serv.uID, liList) !== -1) {
+							serv.enDisableChecked = true;
+						}
+					}
+				});
+				if ("CREATE_NODES" == serviceName) {
+					lBVServers.children.push(serviceGroups);
+				}
+			});
+			if ("CREATE_NODES" == serviceName) {
+				node.children.push(lBVServers);
+			}
+		});
+			}
+		if ("CREATE_NODES" == serviceName) {
+			nodes.push(node);
+		}
+		return nodes;
+	});
+}
+
+ $('#tree').tree({
+     data: nodes
+ });
+ 
+ 
+ </script>
+
+</body>
+</html>
